@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    	<meta charset="utf-8">
+    	<title>ArchDeal</title>
+	    <!-- Firebsae Hosting -->
+	    <script src="/__/firebase/4.2.0/firebase-app.js"></script>
+	    <script src="/__/firebase/4.2.0/firebase-auth.js"></script>
+	    <script src="/__/firebase/4.2.0/firebase-database.js"></script>
+	    <script src="/__/firebase/init.js"></script>
+	    <!-- Import Firebase UI -->
+	    <script src="https://cdn.firebase.com/libs/firebaseui/1.0.0/firebaseui.js"></script>
+	    <link rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/1.0.0/firebaseui.css" />
+	    <!-- VUE Framework -->
+	    <script src="https://js.stripe.com/v3/"></script>
+	    <script src="https://js.stripe.com/v2/"></script>
+	    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+	    <!-- Stripe SDK -->
+	    <script src="https://checkout.stripe.com/checkout.js"></script>
+  	</head>
+	<body>
+		<!-- Main div -->
+	    <div class="container">
+	     	<!-- App element -->
+	     	<div id="app">
+	        	<div id="firebaseui-auth-container"></div>
+	        	<div id="loader">&hellip;</div>
+	        	<!-- If we had a Firebase user, div will be visible, otherwise will be hide -->
+	        	<div v-if="currentUser">
+	         		<h2>Hola {{ currentUser.email }},</h2>
+	          		<button><a href="newCharge.html">Compra</a></button>
+	          		<button v-on:click="signOut">Salir</button>
+	          		<div v-if="stripeCustomerInitialized">
+	            		<h3>Tarjetas de Crédito</h3>
+	            		<ul>
+	            			<!-- For all cards on sources we create a span -->
+	              			<li v-for="(id) in sources">
+	                			<span v-if="id">
+	                				<!-- Card attributes -->
+	                  				{{ id.brand }} &hellip;{{ id.last4 }} {{ id.exp_month }}/{{ id.exp_year }}
+	                			</span>
+	                			<span v-else>&hellip;</span>
+	              			</li>
+	            		</ul>
+	            		<!-- Div to create a new credit card -->
+	            		<div>
+			              	<h4>Nueva tarjeta de crédito o débito</h4>
+			              	<div>
+			                	<label> Tipo <input v-model="newCreditCard.brand"></label>
+			              	</div>
+			              	<div>
+			                	<label> Número <input v-model="newCreditCard.number"></label>
+			              	</div>
+			              	<div>
+			                	<label> CCV <input v-model="newCreditCard.cvc"></label>
+			              	</div>
+			              	<div>
+			                	<label> Exp <input v-model="newCreditCard.exp_month" size="2"> 
+			                			/ <input v-model="newCreditCard.exp_year" size="4"></label>
+			              	</div>
+			              	<div>
+			                	<label> Código Postal <input v-model="newCreditCard.address_zip"></label>
+			              	</div>
+			              	<div>
+			                	<button v-on:click="submitNewCreditCard"> Añadir </button> {{ newCreditCard.error }}
+			              	</div>
+	            		</div>
+	            		<h3>Cargos a la cuenta</h3>
+	            		<ul>
+	            			<!-- Same like card, we retrieve all charges from user -->
+	              			<li v-for="(id) in charges">
+	                			<span v-if="id">
+	                				<!-- Charge attributes -->
+	                  				{{ id.date }} {{ id.info }} {{ id.amount }}
+	                			</span>
+								<span v-else>&hellip;</span>
+	              			</li>
+	            		</ul>
+	            		<h4>Nuevo cargo</h4>
+	            		<div>
+	              			<label> Elige la tarjeta
+	                		<select v-model="newCharge.source">
+	                  			<option :value="null"></option>
+	                  			<option v-for="(id) in sources" v-bind:value="id" v-if="id">
+	                    			{{ id.brand }} &hellip;{{ id.last4 }}
+	                  			</option>
+	                		</select>
+	              			</label>
+	            		</div>
+	            		<div>
+	              			<label> Importe <input v-model="newCharge.amount"></label>
+	            		</div>
+	            		<div> <button v-on:click="submitNewCharge">Realizar cargo</button></div>
+	          		</div>
+	          		<div v-else>&hellip;</div>
+	          	</span>
+	      	</div>
+	    </div>
+	</body>
+ 
+  	<script>
+ 		// TODO: [DEBELOPER] Add Stripe public KEY
+      	var stripe = Stripe('');
+      	Stripe.setPublishableKey('');
+	    
+	    // Initialize the FirebaseUI Widget using Firebase.
+	    var firebaseUI = new firebaseui.auth.AuthUI(firebase.auth());
+	    // Firebase OAuth
+	    var firebaseAuthOptions = {
+	    	callbacks: { 
+	    		// Custom callbacks
+	     		signInSuccess: (currentUser, credential, redirectUrl) => { return false; },
+	     		uiShown: () => { document.getElementById('loader').style.display = 'none'; }
+	       	},
+	       	// Type of Signin
+	        signInFlow: 'popup',
+	        // Signin in will return same page
+	        signInSuccessUrl: '/',
+	        // Differents auth - TwitterPrvider, FacebookProvider...
+	        signInOptions: [ firebase.auth.GoogleAuthProvider.PROVIDER_ID ],
+	        // Infor url for user
+	        tosUrl: '/'
+	    };
+	    
+	    // Firebase auth callback
+	    firebase.auth().onAuthStateChanged(firebaseUser => {
+	    	if (firebaseUser) {
+	    		// Update with user signed in
+	        	console.log('uid', firebaseUser.uid);
+	          	document.getElementById('loader').style.display = 'none';
+	          	app.currentUser = firebaseUser;
+	          	app.listen();
+	        } else {
+	        	// Show Firebase OAuth
+	        	firebaseUI.start('#firebaseui-auth-container', firebaseAuthOptions);
+	          	app.currentUser = null;
+	        }
+	      });
+
+	    // VUE Framework force us to initialize HTML elements
+	    var app = new Vue({
+	       	el: '#app',
+	        data: {
+	        	currentUser: null,
+	          	sources: {},
+	          	stripeCustomerInitialized: false,
+	          	newCreditCard: {
+		            brand: '',
+		            address_zip: '',
+		            number: '',
+		            cvc: '',
+		            exp_month: '',
+		            exp_year: '',
+		            address_zip: ''
+	          	},
+		        charges: {},
+		        newCharge: {
+		            source: null,
+		            amount: ''
+	          	}
+	        },
+	        // Do anything
+	        ready: () => {}, 
+	        // View methods
+	        methods: {
+	        	// Listen method call with firebase event, stripeCustomerInitialized must be NoNull. If firebase user is null
+	        	// main html div will be hide
+	        	listen: function() {
+	        		// Retrieve stripe_id value from Firebase DataBase, 2º argument is uid from firebase user signed
+	            	firebase.database().ref().child(`stripe_customers/${this.currentUser.uid}/stripe_id`).on('value', snapshot => {
+	              		this.stripeCustomerInitialized = (snapshot.val() !== null);
+	            	}, () => {
+	              		this.stripeCustomerInitialized = false;
+	            	});
+	            	// Retrieve user sources, this is an object of user credit cards
+	            	firebase.database().ref().child(`/stripe_customers/${this.currentUser.uid}/sources`).on('value', snapshot => {
+	              		this.sources = snapshot.val();
+	            	}, () => {
+	              		this.sources = {};
+	            	});
+	            	// Retrieve user sources, this is an object of user charges
+	            	firebase.database().ref().child(`/stripe_customers/${this.currentUser.uid}/charges`).on('value', snapshot => {
+	              		this.charges = snapshot.val();
+	            	}, () => {
+	              		this.charges = {};
+	            	});
+	          	},
+	          	// First submitNewCreditCard will create a new credit card on Stripe for our uid customer 
+	          	// if response from Stripe is successful, we can create also the credit card in our DB
+	           	submitNewCreditCard: function() { 
+	          		// Stripe SDK function
+	          		Stripe.card.createToken({
+	          			// Input data
+		   				number: this.newCreditCard.number,
+		              	cvc: this.newCreditCard.cvc,
+		              	exp_month: this.newCreditCard.exp_month,
+		              	exp_year: this.newCreditCard.exp_year,
+		              	address_zip: this.newCreditCard.address_zip
+	            	}, 
+	            	(status, response) => {
+	            		// If response is an error
+	            		if (response.error) { this.newCreditCard.error = response.error.message; }
+	            		// Create new card on DB
+	            		else {
+		            		var number = this.newCreditCard.number;
+		            		var last = number.substring(number.length-4,number.length);
+		            		// 2º argument is User ID from Firebase, and 4º is id from credit card that we already submit 
+							firebase.database().ref().child(`/stripe_customers/${this.currentUser.uid}/sources/${response.card.id}`).set({
+								address_zip: this.newCreditCard.address_zip,
+								brand: this.newCreditCard.brand,
+			                    exp_month: this.newCreditCard.exp_month,
+			                    exp_year: this.newCreditCard.exp_year,
+			                    last4: last,
+			                    number: this.newCreditCard.number
+							});
+	              		}
+	            	});
+	          	},
+	          	// In the same way like newCreditCard, newCharge create a new charge for user and save it on DB
+	          	submitNewCharge: function() {
+	          		// Create var with curren date
+	          		var date = new Date();
+					var currentDay = date.getDate();
+					// Month return (0-11), so user typical month is one more
+					var currentMonth = date.getMonth()+1;
+					var currentYear = date.getFullYear();
+					var currentDate = currentDay+"-"+currentMonth+"-"+currentYear;
+					// Add to firebase our user charge
+	            	firebase.database().ref().child(`/stripe_customers/${this.currentUser.uid}/charges/${currentDate}`).set({
+	              		amount: parseInt(this.newCharge.amount),
+	              		date: currentDate,
+	              		info: "Compra en supermercado"
+	            	});
+	          	},
+	          	// SignOut
+	          	signOut: function() {
+	            	firebase.auth().signOut()
+	          	}
+	        }
+	    });
+    </script>
+</html>
