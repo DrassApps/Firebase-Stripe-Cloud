@@ -17,8 +17,28 @@
 	    <script src="https://unpkg.com/vue/dist/vue.js"></script>
 	    <!-- Stripe SDK -->
 	    <script src="https://checkout.stripe.com/checkout.js"></script>
+	    <!-- CSS and JS for Design -->
+    	<link href="design/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    	<link href="design/css/elements.css" rel="stylesheet" type="text/css"/>
+    	<link href="design/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+		<script src="design/js/jquery-1.11.1.min.js" type="text/javascript"></script>
+		<script src="design/js/app.js" type="text/javascript"></script>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' ; rel='stylesheet' type='text/css'>
+    	<link href="http://demo.chandraadmin.com/assets/css/lib.css" rel="stylesheet" type="text/css"/>
+    	<link href="http://demo.chandraadmin.com/assets/vendors/Buttons/css/buttons.css" rel="stylesheet">
+    	<link href="http://demo.chandraadmin.com/assets/css/custom_css/advbuttons.css" rel="stylesheet">
   	</head>
-	<body>
+	<body class="skin-chandra" style="background-color: #F5F5F5;">
+		<header class="header">
+		    <nav class="navbar navbar-static-top" role="navigation">
+		        <div>
+		        	<a href="newCharge.html" class="button button-pill btn-primary hvr-shrink"> 
+		            	Realizar compra
+		            </a>
+		        </div>
+		    </nav>
+		</header>
+
 		<!-- Main div -->
 	    <div class="container">
 	     	<!-- App element -->
@@ -27,77 +47,142 @@
 	        	<div id="loader">&hellip;</div>
 	        	<!-- If we had a Firebase user, div will be visible, otherwise will be hide -->
 	        	<div v-if="currentUser">
-	         		<h2>Hola {{ currentUser.email }},</h2>
-	          		<button><a href="newCharge.html">Compra</a></button>
-	          		<button v-on:click="signOut">Salir</button>
+	        		<h3 align="center" style="margin-top: 20px; color: #1c8cb5;"> Hola {{ currentUser.email }} </h3>
+					<!--<button v-on:click="signOut">Salir</button>-->
+					<hr>
 	          		<div v-if="stripeCustomerInitialized">
-	            		<h3>Tarjetas de Crédito</h3>
-	            		<ul>
-	            			<!-- For all cards on sources we create a span -->
-	              			<li v-for="(id) in sources">
-	                			<span v-if="id">
-	                				<!-- Card attributes -->
-	                  				{{ id.brand }} &hellip;{{ id.last4 }} {{ id.exp_month }}/{{ id.exp_year }}
-	                			</span>
-	                			<span v-else>&hellip;</span>
-	              			</li>
-	            		</ul>
-	            		<!-- Div to create a new credit card -->
-	            		<div>
-			              	<h4>Nueva tarjeta de crédito o débito</h4>
-			              	<div>
-			                	<label> Tipo <input v-model="newCreditCard.brand"></label>
-			              	</div>
-			              	<div>
-			                	<label> Número <input v-model="newCreditCard.number"></label>
-			              	</div>
-			              	<div>
-			                	<label> CCV <input v-model="newCreditCard.cvc"></label>
-			              	</div>
-			              	<div>
-			                	<label> Exp <input v-model="newCreditCard.exp_month" size="2"> 
-			                			/ <input v-model="newCreditCard.exp_year" size="4"></label>
-			              	</div>
-			              	<div>
-			                	<label> Código Postal <input v-model="newCreditCard.address_zip"></label>
-			              	</div>
-			              	<div>
-			                	<button v-on:click="submitNewCreditCard"> Añadir </button> {{ newCreditCard.error }}
-			              	</div>
-	            		</div>
-	            		<h3>Cargos a la cuenta</h3>
-	            		<ul>
-	            			<!-- Same like card, we retrieve all charges from user -->
-	              			<li v-for="(id) in charges">
-	                			<span v-if="id">
-	                				<!-- Charge attributes -->
-	                  				{{ id.date }} {{ id.info }} {{ id.amount }}
-	                			</span>
-								<span v-else>&hellip;</span>
-	              			</li>
-	            		</ul>
-	            		<h4>Nuevo cargo</h4>
-	            		<div>
-	              			<label> Elige la tarjeta
-	                		<select v-model="newCharge.source">
-	                  			<option :value="null"></option>
-	                  			<option v-for="(id) in sources" v-bind:value="id" v-if="id">
-	                    			{{ id.brand }} &hellip;{{ id.last4 }}
-	                  			</option>
-	                		</select>
-	              			</label>
-	            		</div>
-	            		<div>
-	              			<label> Importe <input v-model="newCharge.amount"></label>
-	            		</div>
-	            		<div> <button v-on:click="submitNewCharge">Realizar cargo</button></div>
+						<aside class="position-center">
+                			<div class="panel panel-primary">
+                    			<div class="panel-heading">
+                        			<h3 class="panel-title">
+                            			<i class="menu-icon fa fa-fw fa-file-text"></i>
+                            				Tus tarjetas
+                        			</h3>
+                                    <span class="pull-right">
+                                        <i class="fa fa-fw fa-times removepanel clickable"></i>
+                                        <i class="fa fa-fw fa-chevron-up clickable"></i>
+                                    </span>
+                    			</div>
+                    			<div class="panel-body">
+                       				<ul>
+	            						<!-- For all cards on sources we create a span -->
+	              						<li v-for="(id) in sources">
+	                						<span v-if="id">
+	                						<!-- Card attributes -->
+	                  						{{ id.brand }} &hellip;{{ id.last4 }} {{ id.exp_month }}/{{ id.exp_year }}
+	                						</span>
+	                						<span v-else>&hellip;</span>
+	              						</li>
+	            					</ul>
+			                    </div>
+                			</div>
+     					</aside>
+     					<aside class="position-center">
+                			<div class="panel panel-primary">
+                    			<div class="panel-heading">
+                        			<h3 class="panel-title">
+                            			<i class="menu-icon fa fa-fw fa-credit-card"></i>
+                            				Nueva tarjeta de crédito
+                        			</h3>
+                                    <span class="pull-right">
+                                        <i class="fa fa-fw fa-times removepanel clickable"></i>
+                                        <i class="fa fa-fw fa-chevron-up clickable"></i>
+                                    </span>
+                    			</div>
+                    			<div class="panel-body">
+				            		<!-- Div to create a new credit card -->
+				            		<div>
+				            			<div id="snackbar">Rellene todos los campos.</div>
+						              	<div>
+						                	<label> Tipo <input type="text" placeholder="Crédito o Débito" v-model="newCreditCard.brand"></label>
+						                	<label> Número <input type="text" placeholder="Número de la tarjeta" v-model="newCreditCard.number"></label>
+						                	<label> CCV <input type="text" placeholder="CCV" v-model="newCreditCard.cvc"></label>
+						                	<label> Mes <input type="text" placeholder="Mes" v-model="newCreditCard.exp_month" size="4"> </label>
+						                	<label> Año <input type="text" placeholder="Año" v-model="newCreditCard.exp_year" size="4"></label>
+						                	<label> Código Postal <input type="text" placeholder="Código Postal" v-model="newCreditCard.address_zip"></label>
+						              	</div>
+						              	<div>
+						              		<button v-on:click="submitNewCreditCard" class="btn btn-labeled btn-primary">
+                                                <span >
+                                                    <i class="fa fa-check"></i>
+                                                </span>
+                                    			Añadir
+                                			</button> {{ newCreditCard.error }}
+						              	</div>
+				            		</div>
+			                    </div>
+                			</div>
+     					</aside>
+     					<aside class="position-center">
+                			<div class="panel panel-primary">
+                    			<div class="panel-heading">
+                        			<h3 class="panel-title">
+                            			<i class="menu-icon fa fa-fw fa-shopping-cart"></i>
+                            				Cargos a la cuenta
+                        			</h3>
+                                    <span class="pull-right">
+                                        <i class="fa fa-fw fa-times removepanel clickable"></i>
+                                        <i class="fa fa-fw fa-chevron-up clickable"></i>
+                                    </span>
+                    			</div>
+                    			<div class="panel-body">
+                       				<ul>
+				            			<!-- Same like card, we retrieve all charges from user -->
+				              			<li v-for="(id) in charges">
+				                			<span v-if="id">
+				                				<!-- Charge attributes -->
+				                  				{{ id.date }} {{ id.info }} {{ id.amount }}€
+				                			</span>
+											<span v-else>&hellip;</span>
+				              			</li>
+				            		</ul>
+			                    </div>
+                			</div>
+     					</aside>
+     					<aside class="position-center">
+                			<div class="panel panel-primary">
+                    			<div class="panel-heading">
+                        			<h3 class="panel-title">
+                            			<i class="menu-icon fa fa-fw fa-check"></i>
+                            				Nuevo cargo
+                        			</h3>
+                                    <span class="pull-right">
+                                        <i class="fa fa-fw fa-times removepanel clickable"></i>
+                                        <i class="fa fa-fw fa-chevron-up clickable"></i>
+                                    </span>
+                    			</div>
+                    			<div class="panel-body">
+                       				<div>
+				              			<label>
+				                		<select v-model="newCharge.source">
+				                  			<option :value="null">Elige la tarjeta</option>
+				                  			<option v-for="(id) in sources" v-bind:value="id" v-if="id">
+				                    			{{ id.brand }} &hellip;{{ id.last4 }}
+				                  			</option>
+				                		</select>
+				              			</label>
+				            		
+				              			<label> Importe <input type="text" placeholder="Importe" v-model="newCharge.amount"></label>
+				              		</div>
+				            		<div> 
+				            			<button v-on:click="submitNewCharge" class="btn btn-labeled btn-primary">
+                                                <span >
+                                                    <i class="fa fa-check"></i>
+                                                </span>
+                                    			Realizar cargo
+                                			</button>
+				            		</div>
+			                    </div>
+                			</div>
+     					</aside>
 	          		</div>
 	          		<div v-else>&hellip;</div>
 	          	</span>
 	      	</div>
 	    </div>
 	</body>
- 
+
+
   	<script>
  		// TODO: [DEBELOPER] Add Stripe public KEY
       	var stripe = Stripe('');
@@ -199,7 +284,12 @@
 	            	}, 
 	            	(status, response) => {
 	            		// If response is an error
-	            		if (response.error) { this.newCreditCard.error = response.error.message; }
+	            		if (response.error) { 
+	            			this.newCreditCard.error = response.error.message; 
+	            			var x = document.getElementById("snackbar")    
+            				x.className = "show";
+            				setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000); 
+	            		}
 	            		// Create new card on DB
 	            		else {
 		            		var number = this.newCreditCard.number;
