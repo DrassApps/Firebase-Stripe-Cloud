@@ -41,5 +41,20 @@ app.post("/customer/:email", function setCustomer(req, res) {
     });
 });
 
+// Add new chargue for customer
+app.post("/charge/:amount", function setCustomer(req, res) {
+  return stripe.charges.create({ 
+    amount: req.params.amount,
+    currency: "eur",
+    description: 'Cargo desde la aplicación',
+    customer: 'CUSTOMER ID',
+    card: 'CAR_ID'
+    }).then((customer) => {
+      res.status(200).json({ message: "Success, new charge added!" });
+    }).catch(err => {
+      res.status(500).json({ error: err });
+    });
+});
+
 // Export api allow developer make routes like: "https://xxx.firebaseproject/api/.."
 exports.api = functions.https.onRequest(app);
