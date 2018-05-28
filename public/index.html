@@ -52,6 +52,7 @@
 	        		<h3 align="center" style="margin-top: 20px; color: #1c8cb5;"> Hola {{ currentUser.email }} </h3>
 					<!--<button v-on:click="signOut">Salir</button>-->
 					<hr>
+					<p align="center" style="margin-top: 20px; color: #1c8cb5;"><i> Si eres un usuario nuevo, te hemos cargado unas tarjetas y cargos de prueba </i></p>
 	          		<div v-if="stripeCustomerInitialized">
 						<aside class="position-center">
                 			<div class="panel panel-primary">
@@ -190,8 +191,7 @@
       	var stripe = Stripe('');
       	Stripe.setPublishableKey('');
 
-	 
-	    // Initialize the FirebaseUI Widget using Firebase.
+		// Initialize the FirebaseUI Widget using Firebase.
 	    var firebaseUI = new firebaseui.auth.AuthUI(firebase.auth());
 	    // Firebase OAuth
 	    var firebaseAuthOptions = {
@@ -205,7 +205,9 @@
 	        // Signin in will return same page
 	        signInSuccessUrl: '/',
 	        // Differents auth - TwitterPrvider, FacebookProvider...
-	        signInOptions: [ firebase.auth.GoogleAuthProvider.PROVIDER_ID ],
+	        signInOptions: [ 
+	        	firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+	        	firebase.auth.FacebookAuthProvider.PROVIDER_ID ],
 	        // Infor url for user
 	        tosUrl: '/'
 	    };
