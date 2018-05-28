@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/stripemain_mainLay"
+    android:background="@drawable/stripeback">
+
+    <TextView
+        android:id="@+id/stripemain_usertext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/White"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:text="Usuario: "/>
+
+    <TextView
+        android:id="@+id/stripemain_useruid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stripemain_usertext"
+        android:textColor="@color/White"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:text="UID: "/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/White"
+        android:layout_below="@id/stripemain_useruid"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/stripemain_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stripemain_useruid"
+        android:textSize="25dp"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:text="Tarjetas"/>
+
+    <TextView
+        android:id="@+id/stripemain_text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stripemain_useruid"
+        android:textSize="25dp"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:text="Datos"
+        android:visibility="gone"/>
+
+   <android.support.v7.widget.RecyclerView
+       android:id="@+id/stripemain_recycler"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_below="@+id/stripemain_text"
+       android:layout_marginStart="10dp"
+       android:layout_marginEnd="10dp"
+       android:layout_marginTop="10dp">
+
+   </android.support.v7.widget.RecyclerView>
+
+    <EditText
+        android:visibility="gone"
+        android:id="@+id/stripemain_newname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stripemain_text2"
+        android:textColorHint="@color/WhiteSmoke"
+        android:textColor="@color/WhiteSmoke"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:inputType="text"
+        android:hint="Nombre"/>
+
+    <EditText
+        android:visibility="gone"
+        android:id="@+id/stripemain_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stripemain_newname"
+        android:textColorHint="@color/WhiteSmoke"
+        android:textColor="@color/WhiteSmoke"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:inputType="numberDecimal"
+        android:hint="0.0"/>
+
+    <RelativeLayout
+        android:id="@+id/stripemap_change"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:onClick="changeView">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/White"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/White"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:text="Nuevo Cargo"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/stripemain_addcharge"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/White"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/White"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:text="Realizar"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
